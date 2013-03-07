@@ -12,16 +12,26 @@ namespace TwitPicScrape
 {
     class Program
     {
-        static String _picturesDirectory = "pictures";
+        static String _picturesDirectory = "C:\\FacesProject\\TwitPics";
         static HashSet<String> _knownNames = new HashSet<String>();
         static void Main(string[] args)
         {
-            foreach (String name in Directory.GetFiles(_picturesDirectory))
+            foreach (String name in Directory.GetFiles(_picturesDirectory, "*.jpg"))
                 _knownNames.Add(name);
 
             Dictionary<DateTime, string> nameDic = new Dictionary<DateTime, string>();
             foreach (String name in _knownNames)
                 nameDic.Add(Directory.GetCreationTime(name), name);
+
+            var lastime = nameDic.Count() > 0 ? nameDic.Last().Key : DateTime.Now;
+
+            StreamReader r = new StreamReader(_picturesDirectory +  "\\list.txt");
+            String line;
+            while ((line = r.ReadLine()) != null)
+            {
+                nameDic.Add(lastime, line);
+                lastime = lastime.AddSeconds(1);
+            }
 
             foreach (var item in nameDic.OrderByDescending(x=>x.Key))
                 FindFollowers(
